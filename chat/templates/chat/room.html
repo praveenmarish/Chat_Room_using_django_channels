@@ -6,12 +6,15 @@
     <title>Chat Room</title>
 </head>
 <body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <textarea id="chat-log" cols="100" rows="20" readonly='True'></textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
+    {{ request.user.username|json_script:"user_name" }}
     <script>
+
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const user_name = JSON.parse(document.getElementById('user_name').textContent);
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -23,7 +26,7 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            document.querySelector('#chat-log').value += ( data.user + ': ' + data.message + '\n');
         };
 
         chatSocket.onclose = function(e) {
@@ -41,9 +44,11 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'user': user_name,
             }));
             messageInputDom.value = '';
+            document.getElementById("chat-log").scrollTop = document.getElementById("chat-log").scrollHeight
         };
     </script>
 </body>
