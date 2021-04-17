@@ -22,6 +22,9 @@ def login_request(request):
                 messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
+    elif request.user.is_authenticated:
+        return redirect('chat/')
+
     form = AuthenticationForm()
     return render(request = request,
                     template_name = "login/login.html",
